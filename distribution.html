@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distribution and Ration Centre Search</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #center {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .center-container {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            flex-wrap: wrap; /* Allow wrapping for responsiveness */
+        }
+
+        .center-image {
+            width: 200px;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .center-details {
+            max-width: 600px;
+            flex: 1; /* Allow it to take the remaining space */
+        }
+
+        .center-details h3 {
+            margin-top: 0;
+        }
+
+        .center-details ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .center-details ul li {
+            margin-bottom: 5px;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .center-container {
+                flex-direction: column; /* Stack elements vertically */
+                align-items: center;
+                text-align: center; /* Center text for smaller screens */
+            }
+
+            .center-image {
+                margin-right: 0;
+                margin-bottom: 10px; /* Add space below the image */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Search Distribution and Ration Centre</h1>
+
+<label for="center">Search by District or Centre Name: </label>
+<input id="center" type="text" placeholder="Start typing district or centre name...">
+<div id="center-details"></div>
+
+<script>
+    const centerData = {
+        "Coimbatore": {
+            distributionCenters: [
+                {
+                    name: "Coimbatore Central DC",
+                    address: "Central Coimbatore, Coimbatore",
+                    products: [
+                        { item: "Rice", price: "₹30/kg" },
+                        { item: "Wheat", price: "₹25/kg" }
+                    ],
+                    openingDates: "1st to 15th of each month",
+                    image: "https://assets.onecompiler.app/42wdykg42/42wdykkeq/lucknow-19-june-2022-india-260nw-2321502471.webp"
+                },
+                {
+                    name: "Peelamedu DC",
+                    address: "Peelamedu, Coimbatore",
+                    products: [
+                        { item: "Sugar", price: "₹20/kg" },
+                        { item: "Oil", price: "₹100/litre" }
+                    ],
+                    openingDates: "1st to 15th of each month",
+                    image: "https://assets.onecompiler.app/42wdykg42/42wdykkeq/MinorMillets.webp"
+                }
+            ],
+            rationCenters: [
+                {
+                    name: "Ration Centre A",
+                    address: "Area A, Coimbatore",
+                    products: [
+                        { item: "Salt", price: "₹10/kg" },
+                        { item: "Dal", price: "₹60/kg" }
+                    ],
+                    openingDates: "5th to 20th of each month",
+                    image: "https://assets.onecompiler.app/42wdykg42/42wdykkeq/61246807122f5c439d752ab349e9693b1668865526587575_original.webp"
+                }
+            ]
+        },
+        "Krishnagiri": {
+            distributionCenters: [
+                {
+                    name: "Krishnagiri Main DC",
+                    address: "Main Road, Krishnagiri",
+                    products: [
+                        { item: "Rice", price: "₹32/kg" },
+                        { item: "Cooking Oil", price: "₹95/litre" }
+                    ],
+                    openingDates: "1st to 10th of each month",
+                    image: "https://assets.onecompiler.app/42wdykg42/42wdykkeq/ration.jpg"
+                }
+            ],
+            rationCenters: [
+                {
+                    name: "Ration Centre Hosur",
+                    address: "Area C, Krishnagiri",
+                    products: [
+                        { item: "Dal", price: "₹55/kg" },
+                        { item: "Salt", price: "₹12/kg" }
+                    ],
+                    openingDates: "10th to 25th of each month",
+                    image: "https://assets.onecompiler.app/42wdykg42/42wdykkeq/GettyImages_178241808__1_.avif"
+                }
+            ]
+        }
+    };
+
+    const centerNames = [];
+    for (const district in centerData) {
+        centerNames.push(district);
+        centerData[district].distributionCenters.forEach(center => centerNames.push(center.name));
+        centerData[district].rationCenters.forEach(center => centerNames.push(center.name));
+    }
+
+    $(function() {
+        $("#center").autocomplete({
+            source: centerNames,
+            select: function(event, ui) {
+                const searchTerm = ui.item.value;
+                findAndDisplayCenter(searchTerm);
+            }
+        });
+        displayAllCenters();
+    });
+
+    function findAndDisplayCenter(searchTerm) {
+        let found = false;
+        let details = `<h2>Search Results for "${searchTerm}":</h2>`;
+
+        if (centerData[searchTerm]) {
+            const centers = centerData[searchTerm];
+            details += displayCenters(centers.distributionCenters, "Distribution Centers");
+            details += displayCenters(centers.rationCenters, "Ration Centers");
+            found = true;
+        } else {
+            for (const district in centerData) {
+                const { distributionCenters, rationCenters } = centerData[district];
+                const matchingCenters = [...distributionCenters, ...rationCenters].filter(center => center.name === searchTerm);
+                if (matchingCenters.length) {
+                    details += displayCenters(matchingCenters, "Center", district);
+                    found = true;
+                }
+            }
+        }
+
+        $("#center-details").html(found ? details : displayAllCenters());
+    }
+
+    function displayAllCenters() {
+        let details = `<h2>All Available Distribution and Ration Centers</h2>`;
+        for (const district in centerData) {
+            const centers = centerData[district];
+            details += displayCenters(centers.distributionCenters, "Distribution Centers", district);
+            details += displayCenters(centers.rationCenters, "Ration Centers", district);
+        }
+        $("#center-details").html(details);
+    }
+
+    function displayCenters(centers, title, district = "") {
+        let content = `<h3>${title} in ${district || ""}</h3>`;
+        centers.forEach(center => {
+            content += `
+                <div class="center-container">
+                    <img class="center-image" src="${center.image}" alt="${center.name}">
+                    <div class="center-details">
+                        <h3>${center.name}</h3>
+                        <p>${center.address}</p>
+                        <p>Opening Dates: ${center.openingDates}</p>
+                        <p>Products:</p>
+                        <ul>
+                            ${center.products.map(product => `<li>${product.item} - ${product.price}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        });
+        return content;
+    }
+</script>
+
+</body>
+</html>

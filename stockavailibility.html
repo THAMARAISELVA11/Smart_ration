@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ration Shop Stock Availability</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f9;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+        }
+        select, table {
+            width: 100%;
+            margin-top: 10px;
+        }
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        /* Responsive styling */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 20px;
+            }
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Ration Shop Stock Availability</h1>
+    <label for="district">Select District:</label>
+    <select id="district" onchange="displayShops()">
+        <option value="">-- Select District --</option>
+        <option value="Salem">Salem</option>
+        <option value="Dharmapuri">Dharmapuri</option>
+        <option value="Krishnagiri">Krishnagiri</option>
+        <option value="Vellore">Vellore</option>
+        <option value="Chennai">Chennai</option>
+        <option value="Karur">Karur</option>
+        <option value="Coimbatore">Coimbatore</option>
+        <option value="Ariyalur">Ariyalur</option>
+        <option value="Cuddalore">Cuddalore</option>
+    </select>
+
+    <div id="stockTable"></div>
+</div>
+
+<script>
+    const stockData = {
+        "Salem": [
+            { shop: "Salem Ration Shop", rice: 200, wheat: 150, sugar: 100, oil: 50, salt: 30 },
+            { shop: "Mettur Ration Shop", rice: 180, wheat: 130, sugar: 90, oil: 40, salt: 25 },
+        ],
+        "Dharmapuri": [
+            { shop: "Dharmapuri Ration Shop", rice: 210, wheat: 160, sugar: 110, oil: 60, salt: 35 },
+            { shop: "Anasagaram Ration Shop", rice: 190, wheat: 140, sugar: 95, oil: 45, salt: 28 },
+        ],
+        "Krishnagiri": [
+            { shop: "Rasuveethi Ration Shop", rice: 220, wheat: 170, sugar: 120, oil: 70, salt: 40 },
+            { shop: "Lakshmipuram Ration Shop", rice: 200, wheat: 150, sugar: 100, oil: 55, salt: 32 },
+            { shop: "Bargur Ration Shop", rice: 205, wheat: 160, sugar: 110, oil: 52, salt: 29 },
+            { shop: "Berigai Ration Shop", rice: 210, wheat: 155, sugar: 105, oil: 50, salt: 28 },
+            { shop: "Hosur Ration Shop", rice: 215, wheat: 165, sugar: 115, oil: 54, salt: 30 },
+            { shop: "Rayakottai Road Ration Shop", rice: 200, wheat: 150, sugar: 100, oil: 55, salt: 32 },
+            { shop: "Sholagiri Ration Shop", rice: 220, wheat: 160, sugar: 115, oil: 60, salt: 35 },
+        ],
+        "Vellore": [
+            { shop: "Thiruvallore Ration Shop", rice: 190, wheat: 140, sugar: 90, oil: 50, salt: 30 },
+            { shop: "Shop 8", rice: 180, wheat: 130, sugar: 80, oil: 45, salt: 25 },
+        ],
+        "Chennai": [
+            { shop: "Shop 9", rice: 210, wheat: 160, sugar: 110, oil: 60, salt: 35 },
+            { shop: "Shop 10", rice: 200, wheat: 150, sugar: 100, oil: 55, salt: 32 },
+        ],
+        "Karur": [
+            { shop: "Shop 11", rice: 220, wheat: 170, sugar: 120, oil: 70, salt: 40 },
+            { shop: "Shop 12", rice: 210, wheat: 160, sugar: 110, oil: 60, salt: 35 },
+        ],
+        "Coimbatore": [
+            { shop: "Shop 13", rice: 200, wheat: 150, sugar: 100, oil: 55, salt: 32 },
+            { shop: "Shop 14", rice: 190, wheat: 140, sugar: 90, oil: 50, salt: 30 },
+        ],
+        "Ariyalur": [
+            { shop: "Shop 15", rice: 180, wheat: 130, sugar: 80, oil: 45, salt: 25 },
+            { shop: "Shop 16", rice: 170, wheat: 120, sugar: 70, oil: 40, salt: 20 },
+        ],
+        "Cuddalore": [
+            { shop: "Shop 17", rice: 210, wheat: 160, sugar: 110, oil: 60, salt: 35 },
+            { shop: "Shop 18", rice: 200, wheat: 150, sugar: 100, oil: 55, salt: 32 },
+        ],
+    };
+
+    function displayShops() {
+        const district = document.getElementById("district").value;
+        const stockTable = document.getElementById("stockTable");
+        stockTable.innerHTML = ""; // Clear previous data
+
+        if (district && stockData[district]) {
+            let tableHtml = `
+                <table>
+                    <tr>
+                        <th>Shop Name</th>
+                        <th>Rice (kg)</th>
+                        <th>Wheat (kg)</th>
+                        <th>Sugar (kg)</th>
+                        <th>Oil (litre)</th>
+                        <th>Salt (kg)</th>
+                    </tr>
+            `;
+            stockData[district].forEach(shop => {
+                tableHtml += `
+                    <tr>
+                        <td>${shop.shop}</td>
+                        <td>${shop.rice}</td>
+                        <td>${shop.wheat}</td>
+                        <td>${shop.sugar}</td>
+                        <td>${shop.oil}</td>
+                        <td>${shop.salt}</td>
+                    </tr>
+                `;
+            });
+            tableHtml += "</table>";
+            stockTable.innerHTML = tableHtml;
+        }
+    }
+</script>
+
+</body>
+</html>

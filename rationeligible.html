@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ration Card Eligibility</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0; /* Added to remove default margin */
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      color: #555;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box; /* Added for better box sizing */
+    }
+
+    .btn-submit {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 1em;
+    }
+
+    .btn-submit:hover {
+      background-color: #45a049;
+    }
+
+    .message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 5px;
+    }
+
+    .message.success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .message.error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px; /* Reduced padding for smaller screens */
+      }
+
+      input, select {
+        padding: 8px; /* Adjusted padding for smaller screens */
+      }
+
+      .btn-submit {
+        padding: 8px; /* Adjusted button padding */
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Ration Card Eligibility Form</h1>
+    <form id="eligibilityForm">
+      <label>Citizenship:</label>
+      <select id="citizenship" required>
+        <option value="">Select</option>
+        <option value="indian">Indian</option>
+        <option value="non-indian">Non-Indian</option>
+      </select>
+
+      <label>Area of Residence:</label>
+      <select id="areaType" required>
+        <option value="">Select</option>
+        <option value="rural">Rural</option>
+        <option value="urban">Urban</option>
+      </select>
+
+      <label>Husband's Age:</label>
+      <input type="number" id="husbandAge" min="0" required>
+
+      <label>Wife's Age:</label>
+      <input type="number" id="wifeAge" min="0" required>
+
+      <label>Husband's Name:</label>
+      <input type="text" id="husbandName">
+
+      <label>Wife's Name:</label>
+      <input type="text" id="wifeName">
+
+      <label>Number of Children:</label>
+      <input type="number" id="numChildren" min="0" oninput="toggleChildAgeFields()">
+
+      <div id="childAgesContainer"></div>
+
+      <label>Marriage Proof:</label>
+      <select id="marriageProof" onchange="toggleMarriageProofFields()" required>
+        <option value="">Select</option>
+        <option value="registered">Registered Marriage</option>
+        <option value="non-registered">Non-Registered</option>
+      </select>
+
+      <div id="marriageNumberContainer" style="display: none;">
+        <label>Marriage Registration Number:</label>
+        <input type="text" id="marriageNumber">
+      </div>
+
+      <div id="marriageUploadContainer" style="display: none;">
+        <label>Upload Marriage Proof:</label>
+        <input type="file" id="marriageProofFile" accept="image/*">
+      </div>
+
+      <label>Address:</label>
+      <input type="text" id="address" required>
+
+      <label>Annual Income (in INR):</label>
+      <input type="number" id="annualIncome" min="0" required>
+
+      <button type="button" class="btn-submit" onclick="checkEligibility()">Check Eligibility</button>
+    </form>
+
+    <div id="message" class="message" style="display: none;"></div>
+  </div>
+
+  <script>
+    function toggleChildAgeFields() {
+      const numChildren = document.getElementById("numChildren").value;
+      const childAgesContainer = document.getElementById("childAgesContainer");
+      childAgesContainer.innerHTML = ""; // Clear previous inputs
+
+      for (let i = 0; i < numChildren; i++) {
+        const label = document.createElement("label");
+        label.textContent = `Age of Child ${i + 1}:`;
+        
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = "0";
+        input.className = "childAge";
+        
+        childAgesContainer.appendChild(label);
+        childAgesContainer.appendChild(input);
+      }
+    }
+
+    function toggleMarriageProofFields() {
+      const marriageProof = document.getElementById("marriageProof").value;
+      const marriageNumberContainer = document.getElementById("marriageNumberContainer");
+      const marriageUploadContainer = document.getElementById("marriageUploadContainer");
+
+      if (marriageProof === "registered") {
+        marriageNumberContainer.style.display = "block";
+        marriageUploadContainer.style.display = "none";
+      } else if (marriageProof === "non-registered") {
+        marriageNumberContainer.style.display = "none";
+        marriageUploadContainer.style.display = "block";
+      } else {
+        marriageNumberContainer.style.display = "none";
+        marriageUploadContainer.style.display = "none";
+      }
+    }
+
+    function checkEligibility() {
+      const citizenship = document.getElementById("citizenship").value;
+      const husbandAge = parseInt(document.getElementById("husbandAge").value);
+      const wifeAge = parseInt(document.getElementById("wifeAge").value);
+      const annualIncome = parseInt(document.getElementById("annualIncome").value);
+      const areaType = document.getElementById("areaType").value;
+      const message = document.getElementById("message");
+
+      // Eligibility Criteria
+      if (citizenship !== "indian") {
+        displayMessage("Only Indian citizens are eligible.", "error");
+        return;
+      }
+      
+      if (husbandAge < 18 || wifeAge < 18) {
+        displayMessage("Both husband and wife must be at least 18 years old.", "error");
+        return;
+      }
+
+      // Set income eligibility limits based on area type
+      const incomeLimit = areaType === "rural" ? 50000 : 60000;
+
+      if (annualIncome > incomeLimit) {
+        displayMessage(`Annual income must not exceed INR ${incomeLimit} for ${areaType} area eligibility.`, "error");
+        return;
+      }
+
+      displayMessage("Congratulations! You are eligible for a ration card.", "success");
+    }
+
+    function displayMessage(text, type) {
+      const message = document.getElementById("message");
+      message.textContent = text;
+      message.className = `message ${type}`;
+      message.style.display = "block";
+    }
+  </script>
+
+</body>
+</html>
